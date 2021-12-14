@@ -4,7 +4,7 @@
   "description": "A convinient bot to gather 10 people at once for a custom game",
   "main": "bot.js",
   "scripts": {
-    "test": "npm run dev"
+    "dev": "nodemon ."
   },
   "repository": {
     "type": "git",
