@@ -10,5 +10,12 @@
 		"name": "Test server",
 		"serverId": "919984229176201266",
 		"channelId": "920331955885723698"
+	},
+	"defaults": {
+		"color":"#256579",
+		"title":"Nouveau 5v5 !",
+		"description":"Ajoutez une réaction pour vous déclarer comme volontaire pour un 5v5 ! Quand 10 personnes se seront portées volontaires, vous serez ping pour venir jouer",
+		"duration":"4h",
+		"number":"10"
 	}
 }
