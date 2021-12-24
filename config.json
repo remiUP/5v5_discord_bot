@@ -1,0 +1,14 @@
+{
+	"prod" : [
+		{
+			"name": "le confinement",
+			"serverId": "690605742599831563",
+			"channelId": "920332564831563807"
+		}
+	],
+	"dev" : {
+		"name": "Test server",
+		"serverId": "919984229176201266",
+		"channelId": "920331955885723698"
+	}
+}

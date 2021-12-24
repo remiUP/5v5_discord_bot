@@ -1,12 +1,28 @@
+const config = require("./config.json");
 const Discord = require("discord.js");
+const { MessageEmbed } = require('discord.js');
 require('dotenv').config();
 
 
 const intents = new Discord.Intents(32767);
-
 const client = new Discord.Client({ intents });
 
-const channelId = "920332564831563807";
+var channelId;
+var currentPollId;
+
+if (process.env.run_mode == "prod"){
+	channelId = config.prod[0].channelId;
+	serverId = config.prod[0].serverId;
+	console.log("⚠️ Starting in production mode ⚠️");
+}
+else {
+	channelId = config.dev.channelId;
+	serverId = config.dev.serverId;
+	if (process.env.run_mode !== "dev"){
+		console.log("Incorrect value for 'run_mode' in the config file : defaulting to development mode");
+	}
+	console.log("🚧 Starting in development mode 🚧");
+}
 
 var createdAt;
 var currentPollId;
@@ -15,11 +31,17 @@ const createPoll = async (pingPlayers) => {
 	const channel = await client.channels.cache.get(channelId);
 	channel.bulkDelete(99);
 	createdAt = new Date();
-	const message = await channel.send(`Ajoutez une réaction pour vous déclarer comme volontaire pour un 5v5 !
-Quand 10 personnes se seront portées volontaires, vous serez ping pour venir jouer (reset toutes les 4h).
-${pingPlayers ? "\n <@&823636943736275005>" : ""}
-\n(Ecrire "new" dans ce channel pour lancer un nouveau rassemblement)
-\n \n \n Création : ${createdAt.toLocaleString()}`);
+	expiration = new Date(createdAt.getTime() + 4*60*60*1000);
+	const embed = new MessageEmbed()
+		.setColor("#256579")
+		.setTitle("Nouveau 5v5 !")
+		.setDescription('Ajoutez une réaction pour vous déclarer comme volontaire pour un 5v5 !\
+		Quand 10 personnes se seront portées volontaires, vous serez ping pour venir jouer')
+		.addField('Poll Duration', '4h', true)
+		.addField('Required number', '10', true)
+		.addField('Creation', createdAt.toLocaleString(), true)
+		.addField('Expiration', expiration.toLocaleString(), true);
+	const message = await channel.send({embeds: [embed]});
 	await message.react('✅');
 	currentPollId = message.id;
 }
@@ -27,7 +49,6 @@ ${pingPlayers ? "\n <@&823636943736275005>" : ""}
 client.once("ready",async () => {
 	console.log("5v5 bot online");
 	await createPoll(false);
-	// console.log(`CurrentPollId : ${currentPollId}`);
 });
 
 client.on('messageReactionAdd', async (reaction,user) =>{
@@ -38,7 +59,7 @@ client.on('messageReactionAdd', async (reaction,user) =>{
 	}
 	const count = reaction.count - 1;
 	console.log(`Count : ${count}`);
-	if (count == 10){
+	if (count == (process.env.run_mode=="prod" ? 10 : 1)){
 		reaction.users.fetch()
 			.then((users) => {
 				let msg = '';
@@ -52,6 +73,7 @@ client.on('messageReactionAdd', async (reaction,user) =>{
 });
 
 client.on("messageCreate", async (message) => {
+
 	if (message.author.bot || message.channelId !== channelId) return;
 	if (message.content === "new"){
 		await createPoll(true);
